@@ -30,7 +30,7 @@ def getFollowers(api):
 
 def searchBarrageAndRetweet(api, friendsID):
     max_heart = 30
-    results = api.search(q=u'弾幕 exclude:retweets', rpp=100)
+    results = api.search(q=u'弾幕 exclude:retweets')
     for result in results:
         try:
             user_id = result.author.id
@@ -58,7 +58,8 @@ follower = choice(followers)
 
 status = status.format(name=follower.name)
 try:
-    api.update_status(status=status)  # Twitterに投稿
+    #api.update_status(status=status)  # Twitterに投稿
+    pass
 except tweepy.error.TweepError as e:
     logError(e)
 
