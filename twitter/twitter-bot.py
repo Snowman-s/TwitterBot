@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
+import tweepy
 from tweepy import *
 from random import choice
 from os.path import abspath, dirname
 import account
+
+def logError(e):
+    file = open(dirname(__file__) + '\\log.txt', 'a', encoding='utf-8')
+    file.write(str(e) + "\n")
+    import datetime
+    file.write(str(datetime.datetime.now))
+    file.close()
+
 
 def auth():
     keys = account.getKeys()
@@ -17,8 +26,17 @@ def auth():
     return API(auth)
 
 def getFollowers(api):
-    friendsList = api.lookup_users(user_ids=api.followers_ids('@BotSnowman'))
-    return friendsList
+    return api.followers_ids()
+
+def searchBarrageAndRetweet(api, friendsID):
+    results = api.search(q=u'弾幕 exclude:retweets')
+    for result in results:
+        try:
+            user_id = result.author.id
+            if (user_id in friendsID):
+                api.retweet(result.id)
+        except tweepy.error.TweepError as e:
+            logError(e)
 
 api = auth()
 
@@ -29,9 +47,14 @@ file.close()
 # ツイートのみ
 status = choice(string)  # 投稿するツイート
 
-followers = getFollowers(api)
+followersID = getFollowers(api)
+followers = api.lookup_users(followersID)
 follower = choice(followers)
 
 status = status.format(name=follower.name)
+try:
+    api.update_status(status=status)  # Twitterに投稿
+except tweepy.error.TweepError as e:
+    logError(e)
 
-api.update_status(status=status)  # Twitterに投稿
+searchBarrageAndRetweet(api, followersID)
