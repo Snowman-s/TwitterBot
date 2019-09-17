@@ -1,43 +1,37 @@
 # -*- coding: utf-8 -*-
-from twitter import *
+from tweepy import *
 from random import choice
 from os.path import abspath, dirname
 import account
-#schtasks /create /tn BotTask /tr "'python C:\Users\otiku\OneDrive\ドキュメント\python\twitter\twitter-bot.py'" /sc once
-def getFollowers():
-    friendsList = []
-    next_cursor = 0 
-    while True:
-        friendsInfo = t.friends.list(cursor=next_cursor)
-        for user in friendsInfo['users']:
-            friendsList.append({
-                    'NumberID':user['id'],
-                    'userID':user['screen_name'],
-                    'userName':user['name']
-                })
-        next_cursor = friendsInfo['next_cursor']
-        if(next_cursor == 0):
-            break
+
+def auth():
+    keys = account.getKeys()
+    CONSUMER_KEY = keys[0]
+    CONSUMER_SECRET_KEY = keys[1]
+    ACCESS_TOKEN = keys[2]
+    ACCESS_TOKEN_SECRET = keys[3]
+
+    auth = OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET_KEY)
+    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+
+    return API(auth)
+
+def getFollowers(api):
+    friendsList = api.lookup_users(user_ids=api.followers_ids('@BotSnowman'))
     return friendsList
 
-keys = account.getKeys()
-CONSUMER_KEY = keys[0]
-CONSUMER_SECRET_KEY = keys[1]
-ACCESS_TOKEN = keys[2]
-ACCESS_TOKEN_SECRET = keys[3] 
+api = auth()
 
-t = Twitter(auth=OAuth(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET_KEY))
-
-file = open(dirname(__file__) + '\\shabel.txt', 'r' ,encoding='utf-8')
+file = open(dirname(__file__) + '\\shabel.txt', 'r', encoding='utf-8')
 string = file.readlines()
 file.close()
 
-#ツイートのみ
-status = choice(string) #投稿するツイート
+# ツイートのみ
+status = choice(string)  # 投稿するツイート
 
-followers = getFollowers()
+followers = getFollowers(api)
 follower = choice(followers)
 
-status = status.format(**follower)
+status = status.format(name=follower.name)
 
-t.statuses.update(status=status) #Twitterに投稿
+api.update_status(status=status)  # Twitterに投稿
