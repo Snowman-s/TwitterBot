@@ -29,14 +29,19 @@ def getFollowers(api):
     return api.followers_ids()
 
 def searchBarrageAndRetweet(api, friendsID):
-    results = api.search(q=u'弾幕 exclude:retweets')
+    max_heart = 30
+    results = api.search(q=u'弾幕 exclude:retweets', rpp=100)
     for result in results:
         try:
             user_id = result.author.id
             if (user_id in friendsID):
-                api.retweet(result.id)
+                api.create_favorite(result.id)
         except tweepy.error.TweepError as e:
             logError(e)
+        max_heart -= 1
+        #一回に30回までハート
+        if (max_heart <= 0):
+            return
 
 api = auth()
 
