@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+from os.path import dirname
+from random import choice
+
+import account
 import tweepy
 from tweepy import *
-from random import choice
-from os.path import abspath, dirname
-import account
 
 
 def logError(e):
@@ -33,19 +35,25 @@ def getFollowers(api):
 
 def searchBarrageAndRetweet(api, friendsID):
     max_heart = 30
-    results = api.search(q=u'弾幕 exclude:retweets')
+    now_date = datetime.now()
+    results = tweepy.Cursor(api.search,
+                            q=u'弾幕 exclude:retweets',
+                            since=now_date.strftime('%Y-%m-%d'),
+                            count=100
+                            ).items()
+    length = 0
     for result in results:
+        length += 1
         try:
             user_id = result.author.id
-            if (user_id in friendsID):
+            if user_id in friendsID:
                 api.create_favorite(result.id)
+                max_heart -= 1
         except tweepy.error.TweepError as e:
             logError(e)
-        max_heart -= 1
         # 一回に30回までハート
-        if (max_heart <= 0):
+        if max_heart <= 0:
             return
-
 
 api = auth()
 file = open(dirname(__file__) + '\\shabel.txt', 'r', encoding='utf-8')
@@ -58,7 +66,8 @@ followers = api.lookup_users(followersID)
 follower = choice(followers)
 status = status.format(name=follower.name)
 try:
-    api.update_status(status=status)  # Twitterに投稿
+    # api.update_status(status=status)  # Twitterに投稿
+    pass
 except tweepy.error.TweepError as e:
     logError(e)
 searchBarrageAndRetweet(api, followersID)
