@@ -5,6 +5,7 @@ from random import choice
 from os.path import abspath, dirname
 import account
 
+
 def logError(e):
     file = open(dirname(__file__) + '\\log.txt', 'a', encoding='utf-8')
     file.write(str(e) + "\n")
@@ -25,8 +26,10 @@ def auth():
 
     return API(auth)
 
+
 def getFollowers(api):
     return api.followers_ids()
+
 
 def searchBarrageAndRetweet(api, friendsID):
     max_heart = 30
@@ -39,28 +42,23 @@ def searchBarrageAndRetweet(api, friendsID):
         except tweepy.error.TweepError as e:
             logError(e)
         max_heart -= 1
-        #一回に30回までハート
+        # 一回に30回までハート
         if (max_heart <= 0):
             return
 
-api = auth()
 
+api = auth()
 file = open(dirname(__file__) + '\\shabel.txt', 'r', encoding='utf-8')
 string = file.readlines()
 file.close()
-
 # ツイートのみ
 status = choice(string)  # 投稿するツイート
-
 followersID = getFollowers(api)
 followers = api.lookup_users(followersID)
 follower = choice(followers)
-
 status = status.format(name=follower.name)
 try:
-    #api.update_status(status=status)  # Twitterに投稿
-    pass
+    api.update_status(status=status)  # Twitterに投稿
 except tweepy.error.TweepError as e:
     logError(e)
-
 searchBarrageAndRetweet(api, followersID)
