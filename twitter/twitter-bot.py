@@ -41,9 +41,7 @@ def searchBarrageAndRetweet(api, friendsID):
                             since=now_date.strftime('%Y-%m-%d'),
                             count=100
                             ).items()
-    length = 0
     for result in results:
-        length += 1
         try:
             user_id = result.author.id
             if user_id in friendsID:
@@ -60,14 +58,19 @@ file = open(dirname(__file__) + '\\shabel.txt', 'r', encoding='utf-8')
 string = file.readlines()
 file.close()
 # ツイートのみ
-status = choice(string)  # 投稿するツイート
 followersID = getFollowers(api)
 followers = api.lookup_users(followersID)
 follower = choice(followers)
-status = status.format(name=follower.name)
+status = ''
+if(datetime.now().hour <= 8):
+    status = 'おはようございます！今日も一日頑張りましょう！'
+elif(datetime.now().hour >= 10):
+    status = 'そろそろ眠くなってきました...。おやすみなさい！'
+else:
+    status = choice(string)  # 投稿するツイート
+    status = status.format(name=follower.name)
 try:
-    # api.update_status(status=status)  # Twitterに投稿
-    pass
+    api.update_status(status=status)  # Twitterに投稿
 except tweepy.error.TweepError as e:
     logError(e)
 searchBarrageAndRetweet(api, followersID)
