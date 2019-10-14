@@ -34,7 +34,7 @@ def getFollowers(api):
 
 
 def searchBarrageAndRetweet(api, friendsID):
-    max_heart = 30
+    max_retweet = 5
     now_date = datetime.now()
     results = tweepy.Cursor(api.search,
                             q=u'弾幕 exclude:retweets',
@@ -45,16 +45,16 @@ def searchBarrageAndRetweet(api, friendsID):
         try:
             user_id = result.author.id
             if user_id in friendsID:
-                api.create_favorite(result.id)
-                max_heart -= 1
+                api.retweet(result.id)
+                max_retweet -= 1
         except tweepy.error.TweepError as e:
             logError(e)
-        # 一回に30回までハート
-        if max_heart <= 0:
+        # 一回に5回までリツイート
+        if max_retweet <= 0:
             return
 
 api = auth()
-file = open(dirname(__file__) + '\\shabel.txt', 'r', encoding='utf-8')
+file = open('shabel.txt', 'r', encoding='utf-8')
 string = file.readlines()
 file.close()
 # ツイートのみ
@@ -62,9 +62,9 @@ followersID = getFollowers(api)
 followers = api.lookup_users(followersID)
 follower = choice(followers)
 status = ''
-if(datetime.now().hour <= 8):
+if datetime.now().hour <= 8:
     status = 'おはようございます！今日も一日頑張りましょう！'
-elif(datetime.now().hour >= 10):
+elif(datetime.now().hour >= 22):
     status = 'そろそろ眠くなってきました...。おやすみなさい！'
 else:
     status = choice(string)  # 投稿するツイート
