@@ -1,0 +1,3 @@
+[submodule "BarrageToImage"]
+	path = BarrageToImage
+	url = https://github.com/Snowman-s/BarrageToImage
