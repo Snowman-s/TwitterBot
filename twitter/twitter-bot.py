@@ -3,6 +3,7 @@ from datetime import datetime
 from os.path import dirname
 from random import choice
 import subprocess
+import os
 
 import account
 import tweepy
@@ -35,6 +36,8 @@ def getFollowers(api):
 
 
 def searchBarrageAndReply(api):
+    os.chdir("./..") 
+    
     now_date = datetime.now()
     results = tweepy.Cursor(api.search,
                             q=u'#barragephoto exclude:retweets',
@@ -43,13 +46,16 @@ def searchBarrageAndReply(api):
                             ).items()
     for result in results:
         try:
+            status = api.get_status(result.id, tweet_mode="extended", include_card_uri=False)
             user_id = result.author.id
             file = open('code.txt', 'w', encoding='utf-8')
-            file.write(result.text)
+            file.write(status.full_text)
             file.close()
-            #api.update_status(status="@"+result.author.screen_name+" (*'▽')",
-            #                  in_reply_to_status_id=result.id)
-            #クラスパス設定めんどい
+            subprocess.run(["java", "-jar", "BarrageToImage.jar", "code.txt"])
+            api.update_with_media(filename="./output.jpg",
+                                  status="@"+result.author.screen_name+" (*'▽')",
+                                  in_reply_to_status_id=result.id)
+            
         except tweepy.error.TweepError as e:
             logError(e)
 

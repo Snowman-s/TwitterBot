@@ -1,4 +1,3 @@
-rem cd BarrageToImage
-rem cd src
+rem コンパイルすることを思い出して
 
-jar --create -v -e com.snowsnowgmail.snowman.barrage.BarrageToImage -f ./BarrageToImage.jar -C ./BarrageToImage/BarrageToImage/src/ .
+jar --create -v -e com.snowsnowgmail.snowman.barrage.BarrageToImage -f ./BarrageToImage.jar -C ./BarrageToImage/src .
