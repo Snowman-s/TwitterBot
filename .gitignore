@@ -2,4 +2,7 @@
 /twitter/bot.cmd
 /twitter/account.py
 /twitter/log.txt
+code.txt
+*.jar
+*.jpg
 __pycache__/

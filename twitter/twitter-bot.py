@@ -2,6 +2,7 @@
 from datetime import datetime
 from os.path import dirname
 from random import choice
+import subprocess
 
 import account
 import tweepy
@@ -33,44 +34,43 @@ def getFollowers(api):
     return api.followers_ids()
 
 
-def searchBarrageAndRetweet(api, friendsID):
-    max_retweet = 5
+def searchBarrageAndReply(api):
     now_date = datetime.now()
     results = tweepy.Cursor(api.search,
-                            q=u'弾幕 exclude:retweets',
+                            q=u'#barragephoto exclude:retweets',
                             since=now_date.strftime('%Y-%m-%d'),
-                            count=100
+                            count=5
                             ).items()
     for result in results:
         try:
             user_id = result.author.id
-            if user_id in friendsID:
-                api.retweet(result.id)
-                max_retweet -= 1
+            file = open('code.txt', 'w', encoding='utf-8')
+            file.write(result.text)
+            file.close()
+            #api.update_status(status="@"+result.author.screen_name+" (*'▽')",
+            #                  in_reply_to_status_id=result.id)
+            #クラスパス設定めんどい
         except tweepy.error.TweepError as e:
             logError(e)
-        # 一回に5回までリツイート
-        if max_retweet <= 0:
-            return
 
 api = auth()
 file = open('shabel.txt', 'r', encoding='utf-8')
 string = file.readlines()
 file.close()
 # ツイートのみ
-followersID = getFollowers(api)
-followers = api.lookup_users(followersID)
-follower = choice(followers)
-status = ''
-if datetime.now().hour <= 8:
-    status = 'おはようございます！今日も一日頑張りましょう！'
-elif(datetime.now().hour >= 22):
-    status = 'そろそろ眠くなってきました...。おやすみなさい！'
-else:
-    status = choice(string)  # 投稿するツイート
-    status = status.format(name=follower.name)
-try:
-    api.update_status(status=status)  # Twitterに投稿
-except tweepy.error.TweepError as e:
-    logError(e)
-searchBarrageAndRetweet(api, followersID)
+#followersID = getFollowers(api)
+#followers = api.lookup_users(followersID)
+#follower = choice(followers)
+#status = ''
+#if datetime.now().hour <= 8:
+#    status = 'おはようございます！今日も一日頑張りましょう！'
+#elif(datetime.now().hour >= 22):
+#    status = 'そろそろ眠くなってきました...。おやすみなさい！'
+#else:
+#    status = choice(string)  # 投稿するツイート
+#    status = status.format(name=follower.name)
+#try:
+#    api.update_status(status=status)  # Twitterに投稿
+#except tweepy.error.TweepError as e:
+#    logError(e)
+searchBarrageAndReply(api)
